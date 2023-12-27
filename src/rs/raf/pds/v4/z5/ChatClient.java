@@ -8,6 +8,10 @@ import com.esotericsoftware.kryonet.Client;
 import com.esotericsoftware.kryonet.Connection;
 import com.esotericsoftware.kryonet.Listener;
 
+import application.Controller;
+
+import javafx.application.Platform;
+import javafx.scene.control.TextField;
 import rs.raf.pds.v4.z5.messages.ChatMessage;
 import rs.raf.pds.v4.z5.messages.CreateRoom;
 import rs.raf.pds.v4.z5.messages.GetMoreMessages;
@@ -29,19 +33,21 @@ public class ChatClient implements Runnable{
 	private volatile Thread thread = null;
 	
 	volatile boolean running = false;
-	
+	private static TextField messageTextField;
 	final Client client;
 	final String hostName;
 	final int portNumber;
 	final String userName;
+	private Controller controller;
 	
-	
-	public ChatClient(String hostName, int portNumber, String userName) {
+	public ChatClient(String hostName, int portNumber, String userName,Controller controller,TextField messageTextField) {
 		this.client = new Client(DEFAULT_CLIENT_WRITE_BUFFER_SIZE, DEFAULT_CLIENT_READ_BUFFER_SIZE);
 		
 		this.hostName = hostName;
 		this.portNumber = portNumber;
 		this.userName = userName;
+		this.controller = controller;
+		this.messageTextField = messageTextField;
 		KryoUtil.registerKryoClasses(client.getKryo());
 		registerListener();
 	}
@@ -53,33 +59,47 @@ public class ChatClient implements Runnable{
 			}
 			
 			public void received (Connection connection, Object object) {
-				if (object instanceof ChatMessage) {
+				/*if (object instanceof ChatMessage) {
 					ChatMessage chatMessage = (ChatMessage)object;
 					showChatMessage(chatMessage);
 					return;
-				}
+				}*/
 
 				if (object instanceof ListUsers) {
 					ListUsers listUsers = (ListUsers)object;
-					showOnlineUsers(listUsers.getUsers());
+					String users = showOnlineUsers(listUsers.getUsers());
+					Platform.runLater(() -> {
+				        controller.showMessage(users,"Server");
+				    });
 					return;
 				}
 				if(object instanceof ListRooms)
 				{
 					ListRooms listrooms = (ListRooms) object;
-					showRooms(listrooms.getRooms());
+					String rooms = showRooms(listrooms.getRooms());
+					Platform.runLater(() -> {
+					        controller.showMessage(rooms,"Server");
+					    });
 					return;
 				}
 				
 				if (object instanceof InfoMessage) {
 					InfoMessage message = (InfoMessage)object;
-					showMessage("Server:"+message.getTxt());
-					return;
+					
+					
+					String text = message.getTxt();
+				    
+				    Platform.runLater(() -> {
+				        controller.showMessage(text,"Server");
+				    });
+				    return;
 				}
 				
 				if (object instanceof ChatMessage) {
 					ChatMessage message = (ChatMessage)object;
-					showMessage(message.getUser()+"r:"+message.getTxt());
+					Platform.runLater(() -> {
+				        controller.showMessage(message.getTxt(),message.getUser());
+				    });
 					return;
 				}
 			}
@@ -89,27 +109,38 @@ public class ChatClient implements Runnable{
 			}
 		});
 	}
-	private void showChatMessage(ChatMessage chatMessage) {
+	/*private void showChatMessage(ChatMessage chatMessage) {
+		//controller.showChatMessage(chatMessage);
 		System.out.println(chatMessage.getUser()+":"+chatMessage.getTxt());
-	}
-	private void showMessage(String txt) {
-		System.out.println(txt);
-	}
-	private void showOnlineUsers(String[] users) {
-		System.out.print("Server:");
+	}*/
+	/*private void showMessage(String txt,String sender) {
+		controller.showMessage(txt,sender);
+		//System.out.println(txt);
+	}*/
+	private String showOnlineUsers(String[] users) {
+		//System.out.print("Server:");
+		StringBuilder sb = new StringBuilder();
 		for (int i=0; i<users.length; i++) {
 			String user = users[i];
-			System.out.print(user);
-			System.out.printf((i==users.length-1?"\n":", "));
+			sb.append(user);
+			sb.append((i==users.length-1?"\n":", "));
+			//System.out.print(user);
+			//System.out.printf((i==users.length-1?"\n":", "));
 		}
+		return sb.toString();
 	}
-	private void showRooms(String[] rooms) {
-		System.out.print("Server:");
+	private String showRooms(String[] rooms) {
+		//System.out.print("Server:");
+		StringBuilder sb = new StringBuilder();
 		for (int i=0; i<rooms.length; i++) {
 			String room = rooms[i];
-			System.out.print(room);
-			System.out.printf((i==rooms.length-1?"\n":", "));
+			sb.append(room);
+			//System.out.print(room);
+			sb.append((i==rooms.length-1?"\n":", "));
+			//System.out.printf((i==rooms.length-1?"\n":", "));
+			
 		}
+		return sb.toString();
 	}
 	public void start() throws IOException {
 		client.start();
@@ -142,67 +173,73 @@ public class ChatClient implements Runnable{
 				running = true;
 				
 	            while (running) {
-	            	userInput = stdIn.readLine();
-	            	if (userInput == null || "BYE".equalsIgnoreCase(userInput)) // userInput - tekst koji je unet sa tastature!
+	            	if(this.controller.buttonClicked)
 	            	{
-	            		running = false;
+	            		userInput = this.messageTextField.getText();
+		            	//userInput = stdIn.readLine();
+		            	if (userInput == null || "BYE".equalsIgnoreCase(userInput)) // userInput - tekst koji je unet sa tastature!
+		            	{
+		            		running = false;
+		            	}
+		            	else if ("WHO".equalsIgnoreCase(userInput)){
+		            		client.sendTCP(new WhoRequest());
+		            	}
+		            	else if("ListRooms".equalsIgnoreCase(userInput))
+		            	{
+		            		client.sendTCP(new ListRoomsRequest());
+		            	}
+		            	else if(userInput.startsWith("Create"))
+		            	{
+		            		String[] parts = userInput.split(" ");
+		                    if (parts.length == 2) {
+		                        client.sendTCP(new CreateRoom(parts[1]));
+		                    } else {
+		                        System.out.println("Invalid command. Use 'Create @roomName'.");
+		                    }
+		            	}
+		            	else if(userInput.startsWith("Join"))
+		            	{
+		            		String[] parts = userInput.split(" ");
+		                    if (parts.length == 2) {
+		                        client.sendTCP(new JoinChatRoom(parts[1]));
+		                    } else {
+		                        System.out.println("Invalid command. Use 'Create @roomName'.");
+		                    }
+		            	}
+		            	else if(userInput.startsWith("Invite"))
+		            	{
+		            		String[] parts = userInput.split(" ");
+		            		if(parts.length==3)
+		            		{
+		            			client.sendTCP(new InviteToChatRoom(parts[1],parts[2]));
+		            		}
+		            		else
+		            		{
+		            			System.out.println("Invalid command. Use 'Invite @roomName @username'.");
+		            		}
+		            	}
+		            	else if (userInput.startsWith("GetMoreMessages")) {
+		                
+		                    String[] parts = userInput.split(" ");
+		                    if (parts.length == 2) {
+		                        client.sendTCP(new GetMoreMessages(parts[1]));
+		                    } else {
+		                        System.out.println("Invalid command. Use 'GetMoreMessages @roomName'.");
+		                    }
+		                }
+		            	else {
+		            		String[] parts = userInput.split(" ", 2);
+		                    if (parts.length == 2) {
+		                        String recipient = parts[0];
+		                        String messageText = parts[1];
+		                        client.sendTCP(new ChatMessage(userName, messageText, recipient));
+		                    } else {
+		                        System.out.println("Invalid command. Use '@recipient message'.");
+		                    }
+		            	}
+		            	this.controller.buttonClicked = false;
 	            	}
-	            	else if ("WHO".equalsIgnoreCase(userInput)){
-	            		client.sendTCP(new WhoRequest());
-	            	}
-	            	else if("ListRooms".equalsIgnoreCase(userInput))
-	            	{
-	            		client.sendTCP(new ListRoomsRequest());
-	            	}
-	            	else if(userInput.startsWith("Create"))
-	            	{
-	            		String[] parts = userInput.split(" ");
-	                    if (parts.length == 2) {
-	                        client.sendTCP(new CreateRoom(parts[1]));
-	                    } else {
-	                        System.out.println("Invalid command. Use 'Create @roomName'.");
-	                    }
-	            	}
-	            	else if(userInput.startsWith("Join"))
-	            	{
-	            		String[] parts = userInput.split(" ");
-	                    if (parts.length == 2) {
-	                        client.sendTCP(new JoinChatRoom(parts[1]));
-	                    } else {
-	                        System.out.println("Invalid command. Use 'Create @roomName'.");
-	                    }
-	            	}
-	            	else if(userInput.startsWith("Invite"))
-	            	{
-	            		String[] parts = userInput.split(" ");
-	            		if(parts.length==3)
-	            		{
-	            			client.sendTCP(new InviteToChatRoom(parts[1],parts[2]));
-	            		}
-	            		else
-	            		{
-	            			System.out.println("Invalid command. Use 'Invite @roomName @username'.");
-	            		}
-	            	}
-	            	else if (userInput.startsWith("GetMoreMessages")) {
-	                
-	                    String[] parts = userInput.split(" ");
-	                    if (parts.length == 2) {
-	                        client.sendTCP(new GetMoreMessages(parts[1]));
-	                    } else {
-	                        System.out.println("Invalid command. Use 'GetMoreMessages @roomName'.");
-	                    }
-	                }
-	            	else {
-	            		String[] parts = userInput.split(" ", 2);
-	                    if (parts.length == 2) {
-	                        String recipient = parts[0];
-	                        String messageText = parts[1];
-	                        client.sendTCP(new ChatMessage(userName, messageText, recipient));
-	                    } else {
-	                        System.out.println("Invalid command. Use '@recipient message'.");
-	                    }
-	            	}
+	            	
 	            	
 	            	if (!client.isConnected() && running)
 	            		connect();
@@ -232,7 +269,9 @@ public class ChatClient implements Runnable{
         String userName = args[2];
         
         try{
-        	ChatClient chatClient = new ChatClient(hostName, portNumber, userName);
+        	Controller probaController = new Controller(); 
+        	TextField proba = new TextField();
+        	ChatClient chatClient = new ChatClient(hostName, portNumber, userName,probaController,messageTextField);
         	chatClient.start();
         }catch(IOException e) {
         	e.printStackTrace();
