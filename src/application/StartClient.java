@@ -25,7 +25,7 @@ public class StartClient extends Application {
 			primaryStage.show();
 			
 			Controller controller = loader.getController();
-			ChatClient chatClient1 = new ChatClient("localhost",4555,"Marko",controller,controller.getTextField());
+			ChatClient chatClient1 = new ChatClient("localhost",4555,"Ana",controller,controller.getTextField());
 			chatClient1.start();
 			
 		} catch(Exception e) {

@@ -85,8 +85,6 @@ public class ChatClient implements Runnable{
 				
 				if (object instanceof InfoMessage) {
 					InfoMessage message = (InfoMessage)object;
-					
-					
 					String text = message.getTxt();
 				    
 				    Platform.runLater(() -> {
@@ -255,7 +253,7 @@ public class ChatClient implements Runnable{
 			client.close();;
 		}
 	}
-	public static void main(String[] args) {
+	/*public static void main(String[] args) {
 		if (args.length != 3) {
 		
             System.err.println(
@@ -278,5 +276,5 @@ public class ChatClient implements Runnable{
         	System.err.println("Error:"+e.getMessage());
         	System.exit(-1);
         }
-	}
+	}*/
 }

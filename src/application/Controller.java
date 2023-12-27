@@ -45,33 +45,29 @@ public class Controller {
 		//textField.clear();
 	}
 	public void addMessage(String message) {
-		
-		Label senderLabel = new Label("you");
+	    Label senderLabel = new Label("you");
 	    senderLabel.setStyle("-fx-font-weight: bold;");
 	    
 	    Label messageLabel = new Label(message);
 	    messageLabel.setStyle("-fx-background-color: #e0e0e0; -fx-padding: 5px;");
 	    
-	    VBox messageBox = new VBox(senderLabel, messageLabel);
+	    HBox messageBox = new HBox(senderLabel, messageLabel);
 	    messageBox.setAlignment(Pos.CENTER_RIGHT);
-	    VBox.setMargin(messageBox, new Insets(5, 5, 5, 5));
+	    HBox.setMargin(messageBox, new Insets(5, 5, 5, 5));
 
-	    
 	    ContextMenu contextMenu = new ContextMenu();
 	    MenuItem editMenuItem = new MenuItem("Edit");
 	    editMenuItem.setOnAction(e -> onEditClicked(messageLabel));
 	    contextMenu.getItems().add(editMenuItem);
 
-	    
 	    messageBox.setOnMouseClicked(event -> {
 	        if (event.getButton() == MouseButton.SECONDARY) {
 	            contextMenu.show(messageBox, event.getScreenX(), event.getScreenY());
 	        }
 	    });
 	    messageContainer.getChildren().add(messageBox);
-	   
-	    
 	}
+
 	public void onMessageClicked(MouseEvent event) {
 	    if (event.getButton() == MouseButton.SECONDARY) {
 	        onEditClicked((Label) event.getSource());
