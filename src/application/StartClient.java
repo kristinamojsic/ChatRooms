@@ -15,6 +15,7 @@ public class StartClient extends Application {
 	@Override
 	public void start(Stage primaryStage) {
 		try {
+			String username = super.getParameters().getRaw().get(0);
 			
 			FXMLLoader loader = new FXMLLoader(getClass().getResource("chat.fxml"));
 		    Parent root;
@@ -22,11 +23,12 @@ public class StartClient extends Application {
 			Scene scene = new Scene(root);
 			
 			primaryStage.setScene(scene);
+			primaryStage.setTitle(username);
 			primaryStage.show();
 			
 			Controller controller = loader.getController();
-			ChatClient chatClient1 = new ChatClient("localhost",4555,"Ana",controller,controller.getTextField());
-			chatClient1.start();
+			ChatClient chatClient = new ChatClient("localhost",4555,username,controller,controller.getTextField());
+			chatClient.start();
 			
 		} catch(Exception e) {
 			e.printStackTrace();
