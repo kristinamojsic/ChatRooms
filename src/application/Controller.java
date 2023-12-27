@@ -37,12 +37,11 @@ public class Controller {
 	@FXML
 	public void onButtonClicked(ActionEvent event)
 	{
-		Stage mainWindow = (Stage) textField.getScene().getWindow();
+		
 		String text = textField.getText();
-		//mainWindow.setTitle(text);
 		addMessage(text);
 		buttonClicked = true;
-		//textField.clear();
+		textField.clear();
 	}
 	public void addMessage(String message) {
 	    Label senderLabel = new Label("you");
