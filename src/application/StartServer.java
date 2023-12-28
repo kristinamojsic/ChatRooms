@@ -16,13 +16,13 @@ public class StartServer extends Application {
 	public void start(Stage primaryStage) {
 		try {
 			
-			FXMLLoader loader = new FXMLLoader(getClass().getResource("chat.fxml"));
+			/*FXMLLoader loader = new FXMLLoader(getClass().getResource("chat.fxml"));
 		    Parent root;
 		    root = loader.load();
 			Scene scene = new Scene(root);
 			
 			primaryStage.setScene(scene);
-			primaryStage.show();
+			primaryStage.show();*/
 			
 			ChatServer chatServer = new ChatServer(4555);
 			chatServer.start();
