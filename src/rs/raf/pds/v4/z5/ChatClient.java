@@ -59,11 +59,7 @@ public class ChatClient implements Runnable{
 			}
 			
 			public void received (Connection connection, Object object) {
-				/*if (object instanceof ChatMessage) {
-					ChatMessage chatMessage = (ChatMessage)object;
-					showChatMessage(chatMessage);
-					return;
-				}*/
+				
 
 				if (object instanceof ListUsers) {
 					ListUsers listUsers = (ListUsers)object;
@@ -253,28 +249,5 @@ public class ChatClient implements Runnable{
 			client.close();;
 		}
 	}
-	/*public static void main(String[] args) {
-		if (args.length != 3) {
-		
-            System.err.println(
-                "Usage: java -jar chatClient.jar <host name> <port number> <username>");
-            System.out.println("Recommended port number is 54555");
-            System.exit(1);
-        }
- 
-        String hostName = args[0];
-        int portNumber = Integer.parseInt(args[1]);
-        String userName = args[2];
-        
-        try{
-        	Controller probaController = new Controller(); 
-        	TextField proba = new TextField();
-        	ChatClient chatClient = new ChatClient(hostName, portNumber, userName,probaController,messageTextField);
-        	chatClient.start();
-        }catch(IOException e) {
-        	e.printStackTrace();
-        	System.err.println("Error:"+e.getMessage());
-        	System.exit(-1);
-        }
-	}*/
+	
 }

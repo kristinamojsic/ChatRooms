@@ -138,7 +138,7 @@ public class ChatServer implements Runnable{
 			private void sendRecentMessages(Connection conn, String roomName) {
 		        List<ChatMessage> recentMessages = roomMessages.getOrDefault(roomName, new ArrayList<>());
 		        int messageCount = Math.min(recentMessages.size(), 5);
-		        for (int i = 0; i <= messageCount; i++) {
+		        for (int i = 0; i < messageCount; i++) {
 		            conn.sendTCP(recentMessages.get(i));
 		        }
 		        

@@ -41,7 +41,7 @@ public class Controller {
 		String text = textField.getText();
 		addMessage(text);
 		buttonClicked = true;
-		textField.clear();
+		//textField.clear();
 	}
 	public void addMessage(String message) {
 	    Label senderLabel = new Label("you");
