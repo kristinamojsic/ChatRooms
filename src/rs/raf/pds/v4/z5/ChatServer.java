@@ -121,6 +121,11 @@ public class ChatServer implements Runnable{
 		            handleGetMoreMessages(connection, getMessages);
 		            return;
 		        }
+				if(object instanceof InfoMessage)
+				{
+					InfoMessage infoMessage = (InfoMessage) object;
+					connection.sendTCP(infoMessage);
+				}
 			}
 			private void sendRoomMessage(ChatMessage message) {
                 String roomName = message.getRecipient();
@@ -155,6 +160,7 @@ public class ChatServer implements Runnable{
                 if (recipientConnection != null && recipientConnection.isConnected()) {
                     recipientConnection.sendTCP(message);
                 } else {
+                	
                     System.out.println("Recipient " + recipient + " is not available.");
                 }
             }
