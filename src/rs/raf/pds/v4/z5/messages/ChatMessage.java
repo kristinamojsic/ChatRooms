@@ -6,10 +6,20 @@ public class ChatMessage {
 	//primalac moze biti jedan korisnik ili grupa
 	String recipient;
 	String roomName;
+	boolean edited = false;
 	
 	
 	protected ChatMessage() {
 		
+	}
+	
+	public void setEdited(boolean state)
+	{
+		edited = state;
+	}
+	public boolean getEdited()
+	{
+		return edited;
 	}
 	public ChatMessage(String user, String txt,String recipient) {
 		this.user = user;

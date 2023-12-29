@@ -18,13 +18,14 @@ import javafx.scene.control.TextInputDialog;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
+import rs.raf.pds.v4.z5.ChatClient;
 import javafx.scene.layout.*;
 
 public class Controller {
 	
 	@FXML
 	private TextField textField;
-	
+	private ChatClient chatClient;
 	@FXML
 	VBox messageContainer;
 	public TextField getTextField() {
@@ -32,6 +33,10 @@ public class Controller {
     }
 	
 	public boolean buttonClicked = false;
+	public void setChatClient(ChatClient chatClient)
+	{
+		this.chatClient = chatClient;
+	}
 	@FXML
 	public void onButtonClicked(ActionEvent event)
 	{
@@ -80,7 +85,11 @@ public class Controller {
 	    dialog.setContentText("Edit your message:");
 
 	    Optional<String> result = dialog.showAndWait();
-	    result.ifPresent(editedMessage -> messageLabel.setText(editedMessage + " (Ed)"));
+	    result.ifPresent(editedMessage -> {
+	    	String edited = editedMessage + " (Ed)";
+	    	messageLabel.setText(edited);
+	    	chatClient.sendEditedMessage(edited);
+	    });
 	}
 	
 	public void showMessage(String message,String sender) {

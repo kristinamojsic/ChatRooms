@@ -39,6 +39,7 @@ public class ChatServer implements Runnable{
 	private final Set<String> chatRooms = new HashSet<>();
 	private final Map<String, Set<Connection>> usersInRooms = new ConcurrentHashMap<>();
 	private final ConcurrentMap<String, List<ChatMessage>> roomMessages = new ConcurrentHashMap<>();
+	private final Set<ChatMessage> allMessages = new HashSet<>();
 	
 	public ChatServer(int portNumber) {
 		this.server = new Server();
@@ -85,7 +86,7 @@ public class ChatServer implements Runnable{
 						}
 					}
 					
-					 
+					allMessages.add(chatMessage);
 					return;
 				}
 

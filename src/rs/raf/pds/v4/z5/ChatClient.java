@@ -48,6 +48,7 @@ public class ChatClient implements Runnable{
 		this.userName = userName;
 		this.controller = controller;
 		this.messageTextField = messageTextField;
+		controller.setChatClient(this);
 		KryoUtil.registerKryoClasses(client.getKryo());
 		registerListener();
 	}
@@ -139,6 +140,11 @@ public class ChatClient implements Runnable{
 		}
 		return sb.toString();
 	}
+	public void sendEditedMessage(String editedMessage) {
+        ChatMessage chatMessage = new ChatMessage(userName, editedMessage,"recipient");
+       // chatMessage.setEdited(true);
+        client.sendTCP(chatMessage);
+    }
 	public void start() throws IOException {
 		client.start();
 		connect();
