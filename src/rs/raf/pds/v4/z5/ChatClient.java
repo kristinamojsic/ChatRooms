@@ -237,6 +237,7 @@ public class ChatClient implements Runnable{
 		                    }
 		            	}
 		            	this.controller.buttonClicked = false;
+		            	this.messageTextField.clear();
 	            	}
 	            	
 	            	

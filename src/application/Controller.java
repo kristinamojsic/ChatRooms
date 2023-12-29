@@ -30,10 +30,7 @@ public class Controller {
 	public TextField getTextField() {
         return textField;
     }
-	@FXML
-	private void initialize() {
-	    System.out.println("messageContainer: " + messageContainer);
-	}
+	
 	public boolean buttonClicked = false;
 	@FXML
 	public void onButtonClicked(ActionEvent event)
@@ -107,21 +104,19 @@ public class Controller {
 
 	    Optional<String> result = dialog.showAndWait();
 	    result.ifPresent(reply -> {
-	        textField.setText(reply);
-	        buttonClicked = true;
-	        
+	       
 	        addReply(messageLabel, reply);
 	       // textField.clear();
 	        
 	    });
 	    
-	    //indikator chatClientu da procita poruku
+	    
 	    
 	    
 	}
-//funkcija za dodavanje reply kod usera koji je poslao
+
 	private void addReply(Label originalMessageLabel, String reply) {
-	    Label senderLabel = new Label("you (reply)");
+	    Label senderLabel = new Label("you (reply) to " + originalMessageLabel.getText());
 	    senderLabel.setStyle("-fx-font-weight: bold;");
 
 	    Label replyLabel = new Label(reply);
@@ -132,7 +127,8 @@ public class Controller {
 	    HBox.setMargin(replyBox, new Insets(5, 5, 5, 5));
 
 	    messageContainer.getChildren().add(replyBox);
-
+	    textField.setText("Replied to " + originalMessageLabel.getText() + " with " + reply);
+        buttonClicked = true;
 	  
 	}
 
