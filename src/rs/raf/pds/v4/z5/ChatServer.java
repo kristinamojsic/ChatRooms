@@ -286,7 +286,7 @@ public class ChatServer implements Runnable{
 	}
 	
 	
-	/*public static void main(String[] args) {
+	public static void main(String[] args) {
 		
 		if (args.length != 1) {
 	        System.err.println("Usage: java -jar chatServer.jar <port number>");
@@ -308,7 +308,7 @@ public class ChatServer implements Runnable{
 		e.printStackTrace();
 	   }
 	}
-	*/
+	
    
    
 }

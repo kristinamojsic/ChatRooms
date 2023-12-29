@@ -8,6 +8,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListView;
@@ -50,7 +51,10 @@ public class Controller {
 	    Label messageLabel = new Label(message);
 	    messageLabel.setStyle("-fx-background-color: #e0e0e0; -fx-padding: 5px;");
 	    
-	    HBox messageBox = new HBox(senderLabel, messageLabel);
+	    Button replyButton = new Button("Reply");
+	    replyButton.setOnAction(e -> onReplyClicked(messageLabel));
+	    
+	    HBox messageBox = new HBox(senderLabel, messageLabel,replyButton);
 	    messageBox.setAlignment(Pos.CENTER_RIGHT);
 	    HBox.setMargin(messageBox, new Insets(5, 5, 5, 5));
 
@@ -88,10 +92,48 @@ public class Controller {
 
 	    Label messageLabel = new Label(message);
 	    messageLabel.setStyle("-fx-background-color: #e0e0e0; -fx-padding: 5px;");
-
-	    VBox messageBox = new VBox(serverLabel, messageLabel);
+	    Button replyButton = new Button("Reply");
+	    replyButton.setOnAction(e -> onReplyClicked(messageLabel));
+	    VBox messageBox = new VBox(serverLabel, messageLabel,replyButton);
 	    VBox.setMargin(messageBox, new Insets(5, 5, 5, 5));
 
 	    messageContainer.getChildren().add(messageBox);
 	}
+	private void onReplyClicked(Label messageLabel) {
+	    TextInputDialog dialog = new TextInputDialog();
+	    dialog.setTitle("Reply to Message");
+	    dialog.setHeaderText(null);
+	    dialog.setContentText("Reply:");
+
+	    Optional<String> result = dialog.showAndWait();
+	    result.ifPresent(reply -> {
+	        textField.setText(reply);
+	        buttonClicked = true;
+	        
+	        addReply(messageLabel, reply);
+	       // textField.clear();
+	        
+	    });
+	    
+	    //indikator chatClientu da procita poruku
+	    
+	    
+	}
+//funkcija za dodavanje reply kod usera koji je poslao
+	private void addReply(Label originalMessageLabel, String reply) {
+	    Label senderLabel = new Label("you (reply)");
+	    senderLabel.setStyle("-fx-font-weight: bold;");
+
+	    Label replyLabel = new Label(reply);
+	    replyLabel.setStyle("-fx-background-color: #e0e0e0; -fx-padding: 5px;");
+
+	    HBox replyBox = new HBox(senderLabel, replyLabel);
+	    replyBox.setAlignment(Pos.CENTER_RIGHT);
+	    HBox.setMargin(replyBox, new Insets(5, 5, 5, 5));
+
+	    messageContainer.getChildren().add(replyBox);
+
+	  
+	}
+
 }
