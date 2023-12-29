@@ -74,15 +74,17 @@ public class ChatServer implements Runnable{
 						{
 							sendRoomMessage(chatMessage);	
 						}
-						else
+						else if(userConnectionMap.containsKey(recipient))
 						{
 							sendPrivateMessage(chatMessage);
 						}
+						else
+						{
+							chatMessage.setTxt(chatMessage.getRecipient() + " " + chatMessage.getTxt());
+							broadcastChatMessage(chatMessage);
+						}
 					}
-					else
-					{
-						broadcastChatMessage(chatMessage, connection);
-					}
+					
 					 
 					return;
 				}
@@ -248,9 +250,9 @@ public class ChatServer implements Runnable{
 		connectionUserMap.put(conn, loginMessage.getUserName());
 		showTextToAll("User "+loginMessage.getUserName()+" has connected!", conn);
 	}
-	private void broadcastChatMessage(ChatMessage message, Connection exception) {
+	private void broadcastChatMessage(ChatMessage message) {
 		for (Connection conn: userConnectionMap.values()) {
-			if (conn.isConnected() && conn != exception)
+			if (conn.isConnected())
 				conn.sendTCP(message);
 		}
 	}
