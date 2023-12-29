@@ -124,6 +124,9 @@ public class ChatServer implements Runnable{
 			}
 			private void sendRoomMessage(ChatMessage message) {
                 String roomName = message.getRecipient();
+                message.setRoomName(roomName);
+                //String messageText = message.txt;
+                //message.txt = "(room:" + roomName + ")" + messageText;
                 Set<Connection> connectionsInRoom = usersInRooms.get(roomName);
                 if (connectionsInRoom != null) {
                     for (Connection conn : connectionsInRoom) {

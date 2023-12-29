@@ -5,6 +5,7 @@ public class ChatMessage {
 	String txt;
 	//primalac moze biti jedan korisnik ili grupa
 	String recipient;
+	String roomName;
 	
 	
 	protected ChatMessage() {
@@ -16,7 +17,15 @@ public class ChatMessage {
 		this.recipient = recipient;
 	}
 
+	public String getRoomName()
+	{
+		return roomName;
+	}
 	
+	public void setRoomName(String roomName)
+	{
+		this.roomName = roomName;
+	}
 	public String getRecipient() {
 		return recipient;
 	}

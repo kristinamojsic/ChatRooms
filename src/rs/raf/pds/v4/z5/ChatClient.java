@@ -91,8 +91,11 @@ public class ChatClient implements Runnable{
 				
 				if (object instanceof ChatMessage) {
 					ChatMessage message = (ChatMessage)object;
+					
 					Platform.runLater(() -> {
-				        controller.showMessage(message.getTxt(),message.getUser());
+						String room = message.getRoomName();
+						String user = message.getUser();
+				        controller.showMessage(message.getTxt(), room != null ? room + ": " + user : user );
 				    });
 					return;
 				}
@@ -158,10 +161,7 @@ public class ChatClient implements Runnable{
 	}
 	public void run() {
 		
-		try (
-				BufferedReader stdIn = new BufferedReader(
-	                    new InputStreamReader(System.in))	// Za čitanje sa standardnog ulaza - tastature!
-	        ) {
+		try  {
 					            
 				String userInput;
 				running = true;
