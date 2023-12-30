@@ -24,6 +24,7 @@ import rs.raf.pds.v4.z5.messages.ListRooms;
 import rs.raf.pds.v4.z5.messages.ListRoomsRequest;
 import rs.raf.pds.v4.z5.messages.ListUsers;
 import rs.raf.pds.v4.z5.messages.Login;
+import rs.raf.pds.v4.z5.messages.ReplyMessage;
 import rs.raf.pds.v4.z5.messages.WhoRequest;
 
 public class ChatClient implements Runnable{
@@ -146,6 +147,11 @@ public class ChatClient implements Runnable{
         client.sendTCP(new EditedMessage(originalMessage,editedMessage));
        
     }
+	
+	public void sendReplyMessage(String messageRepliedTo, String reply)
+	{
+		client.sendTCP(new ReplyMessage(messageRepliedTo,reply));
+	}
 	public void start() throws IOException {
 		client.start();
 		connect();

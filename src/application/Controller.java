@@ -138,8 +138,10 @@ public class Controller {
 	    HBox.setMargin(replyBox, new Insets(5, 5, 5, 5));
 
 	    messageContainer.getChildren().add(replyBox);
-	    textField.setText("Replied to " + originalMessageLabel.getText() + " with " + reply);
-        buttonClicked = true;
+	    chatClient.sendReplyMessage(originalMessageLabel.getText(),"Replied to " + originalMessageLabel.getText() + " with " + reply);
+	   
+	    // textField.setText("Replied to " + originalMessageLabel.getText() + " with " + reply);
+       // buttonClicked = true;
 	  
 	}
 
