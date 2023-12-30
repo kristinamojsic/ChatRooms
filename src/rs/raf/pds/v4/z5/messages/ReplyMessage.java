@@ -2,18 +2,18 @@ package rs.raf.pds.v4.z5.messages;
 
 public class ReplyMessage {
 
-	String originalMessage;
+	String messageRepliedTo;
 	String reply;
 	public ReplyMessage(String originalMessage, String reply) {
 		super();
-		this.originalMessage = originalMessage;
+		this.messageRepliedTo = originalMessage;
 		this.reply = reply;
 	}
 	public String getOriginalMessage() {
-		return originalMessage;
+		return messageRepliedTo;
 	}
 	public void setOriginalMessage(String originalMessage) {
-		this.originalMessage = originalMessage;
+		this.messageRepliedTo = originalMessage;
 	}
 	public String getReply() {
 		return reply;
