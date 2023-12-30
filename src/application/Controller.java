@@ -53,10 +53,10 @@ public class Controller {
 	    Label messageLabel = new Label(message);
 	    messageLabel.setStyle("-fx-background-color: #e0e0e0; -fx-padding: 5px;");
 	    
-	    Button replyButton = new Button("Reply");
-	    replyButton.setOnAction(e -> onReplyClicked(messageLabel));
+	   // Button replyButton = new Button("Reply");
+	   // replyButton.setOnAction(e -> onReplyClicked(messageLabel));
 	    
-	    HBox messageBox = new HBox(senderLabel, messageLabel,replyButton);
+	    HBox messageBox = new HBox(senderLabel, messageLabel);
 	    messageBox.setAlignment(Pos.CENTER_RIGHT);
 	    HBox.setMargin(messageBox, new Insets(5, 5, 5, 5));
 
