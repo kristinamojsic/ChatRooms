@@ -233,9 +233,17 @@ public class ChatServer implements Runnable{
         if (chatRooms.contains(roomName) && userConnectionMap.containsKey(invitedUserName)) {
             Connection invitedConnection = userConnectionMap.get(invitedUserName);
             if (invitedConnection.isConnected()) {
-                usersInRooms.get(roomName).add(invitedConnection);
-                invitedConnection.sendTCP(new InfoMessage("You have been invited to room: " + roomName + " by " + connectionUserMap.get(inviterConnection)));
-                System.out.println(connectionUserMap.get(inviterConnection) + " invited " + invitedUserName + " to room: " + roomName);
+            	if(usersInRooms.get(roomName).contains(inviterConnection))
+            	{
+            		usersInRooms.get(roomName).add(invitedConnection);
+                    invitedConnection.sendTCP(new InfoMessage("You have been invited to room: " + roomName + " by " + connectionUserMap.get(inviterConnection)));
+                    System.out.println(connectionUserMap.get(inviterConnection) + " invited " + invitedUserName + " to room: " + roomName);
+            	}
+            	else
+            	{
+            		inviterConnection.sendTCP(new InfoMessage("You are not in this room."));
+            	}
+                
             } else {
                 inviterConnection.sendTCP(new InfoMessage("User " + invitedUserName + " is not online."));
             }
