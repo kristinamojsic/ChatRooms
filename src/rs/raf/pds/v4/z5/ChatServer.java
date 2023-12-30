@@ -128,183 +128,8 @@ public class ChatServer implements Runnable{
 					replyMessage(repliedMessage,connection);
 				}
 			}
-			private void sendMessage(ChatMessage chatMessage, Connection connection)
-			{
-				String recipient = chatMessage.getRecipient();
-				if(recipient!=null && !recipient.isEmpty())
-				{
-					if(chatRooms.contains(recipient))
-					{
-						sendRoomMessage(chatMessage,connection);	
-					}
-					else if(userConnectionMap.containsKey(recipient))
-					{
-						sendPrivateMessage(chatMessage);
-					}
-					else
-					{
-						chatMessage.setTxt(chatMessage.getRecipient() + " " + chatMessage.getTxt());
-						broadcastChatMessage(chatMessage,connection);
-					}
-				}
-			}
-			private void sendRoomMessage(ChatMessage message,Connection connection) {
-                String roomName = message.getRecipient();
-                message.setRoomName(roomName);
-                //String messageText = message.txt;
-                //message.txt = "(room:" + roomName + ")" + messageText;
-                Set<Connection> connectionsInRoom = usersInRooms.get(roomName);
-                if (connectionsInRoom != null) {
-                    for (Connection conn : connectionsInRoom) {
-                        if (conn.isConnected() && conn!=connection) {
-                            conn.sendTCP(message);
-                           
-                        }
-                    }
-                }
-                addGroupMessage(roomName, message);
-            }
-			private void sendRecentMessages(Connection conn, String roomName) {
-		        List<ChatMessage> recentMessages = roomMessages.getOrDefault(roomName, new ArrayList<>());
-		        int messageCount = Math.min(recentMessages.size(), 5);
-		        for (int i = 0; i < messageCount; i++) {
-		            conn.sendTCP(recentMessages.get(i));
-		        }
-		        
-		    }
-			private void addGroupMessage(String roomName, ChatMessage message) {
-		        roomMessages.computeIfAbsent(roomName, k -> new ArrayList<>()).add(message);
-		    }
-			private void sendPrivateMessage(ChatMessage message) {
-                String recipient = message.getRecipient();
-                Connection recipientConnection = userConnectionMap.get(recipient);
-                if (recipientConnection != null && recipientConnection.isConnected()) {
-                    recipientConnection.sendTCP(message);
-                } else {
-                	
-                    System.out.println("Recipient " + recipient + " is not available.");
-                }
-            }
-			private void inviteUserToRoom(Connection inviterConnection, String roomName, String invitedUserName) {
-                if (chatRooms.contains(roomName) && userConnectionMap.containsKey(invitedUserName)) {
-                    Connection invitedConnection = userConnectionMap.get(invitedUserName);
-                    if (invitedConnection.isConnected()) {
-                        usersInRooms.get(roomName).add(invitedConnection);
-                        invitedConnection.sendTCP(new InfoMessage("You have been invited to room: " + roomName + " by " + connectionUserMap.get(inviterConnection)));
-                        System.out.println(connectionUserMap.get(inviterConnection) + " invited " + invitedUserName + " to room: " + roomName);
-                    } else {
-                        inviterConnection.sendTCP(new InfoMessage("User " + invitedUserName + " is not online."));
-                    }
-                } else {
-                    inviterConnection.sendTCP(new InfoMessage("Invalid room or user."));
-                }
-				//String info = "Room " + roomName + " , user " + invitedUserName; 
-				//inviterConnection.sendTCP(new InfoMessage(info));
-            }
-			private void joinRoom(String roomName,Connection user)
-			{
-				
-				if (chatRooms.contains(roomName)) {
-                    usersInRooms.get(roomName).add(user);
-                    user.sendTCP(new InfoMessage("Joined room: " + roomName));
-                    System.out.println(connectionUserMap.get(user) + " joined room: " + roomName);
-                    sendRecentMessages(user,roomName);
-				} else {
-                    user.sendTCP(new InfoMessage("Room does not exist: " + roomName));
-                }
-				
-			}
-			private void handleGetMoreMessages(Connection connection, GetMoreMessages getMoreMessages) {
-		        String roomName = getMoreMessages.getRoomName();
-		        if (usersInRooms.get(roomName).contains(connection)) {
-		            List<ChatMessage> allGroupMessages = roomMessages.getOrDefault(roomName, new ArrayList<>());
-		            for (ChatMessage message : allGroupMessages) {
-		                connection.sendTCP(message);
-		            }
-		        } else {
-		            connection.sendTCP(new InfoMessage("You are not a member of the group: " + roomName));
-		        }
-		    }
-			private void createRoom(String roomName,Connection user)
-			{
-				chatRooms.add(roomName);
-				Set<Connection> members = new HashSet<>();
-			    members.add(user);
-				usersInRooms.put(roomName, members);
-				
-                System.out.println("Room " + roomName + " created.");
-				
-			}
-			private void editMessage(EditedMessage editedMessage, Connection connection)
-			{
-				ChatMessage newMessage = null;
-				for(ChatMessage chatMessage : allMessages)
-				{
-					if((chatMessage.getRecipient() + " " + chatMessage.getTxt()).equals(editedMessage.getOriginal()))
-					{
-						newMessage = new ChatMessage(chatMessage.getUser(),editedMessage.getEdited(),chatMessage.getRecipient());
-						allMessages.add(newMessage);
-						sendMessage(newMessage,connection);
-						return;
-					}
-				}
-			}
-			private String findUsername(Connection conn)
-			{
-				for (Map.Entry<String, Connection> entry : userConnectionMap.entrySet()) {
-			        if (entry.getValue().equals(conn)) {
-			            return entry.getKey();
-			        }
-			    }
-				return null;
-			}
 			
-			private void replyMessage(ReplyMessage repliedMessage,Connection conn)
-			{
-				ChatMessage newMessage = null;
 			
-				String username = findUsername(conn);
-				
-				for(ChatMessage chatMessage : allMessages)
-				{
-					
-					if((chatMessage.getTxt()).equals(repliedMessage.getmessageRepliedTo()))
-					{
-						
-						if(username != null)
-						{
-							
-							String recipient = chatMessage.getRecipient();
-							
-							if(recipient!=null && !recipient.isEmpty())
-							{
-								if(chatRooms.contains(recipient))
-								{
-									
-									newMessage = new ChatMessage(username,repliedMessage.getReply(),recipient);
-									sendRoomMessage(newMessage,conn);	
-								}
-								else if(userConnectionMap.containsKey(recipient))
-								{
-									
-									newMessage = new ChatMessage(recipient,repliedMessage.getReply(),chatMessage.getUser());
-									sendPrivateMessage(newMessage);
-								}
-								else
-								{
-									
-									newMessage = new ChatMessage(username,repliedMessage.getReply(),"");
-									broadcastChatMessage(newMessage,conn);
-								}
-							}
-							
-						
-							return;
-						}
-						
-					}
-				}
-			}
 			
 			public void disconnected(Connection connection) {
 				String user = connectionUserMap.get(connection);
@@ -351,6 +176,163 @@ public class ChatServer implements Runnable{
 		for (Connection conn: userConnectionMap.values()) {
 			if (conn.isConnected() && conn != exception)
 				conn.sendTCP(new InfoMessage(txt));
+		}
+	}
+	private void sendMessage(ChatMessage chatMessage, Connection connection)
+	{
+		String recipient = chatMessage.getRecipient();
+		if(recipient!=null && !recipient.isEmpty())
+		{
+			if(chatRooms.contains(recipient)) sendRoomMessage(chatMessage,connection);
+			else if(userConnectionMap.containsKey(recipient)) sendPrivateMessage(chatMessage);
+			else
+			{
+				chatMessage.setTxt(chatMessage.getRecipient() + " " + chatMessage.getTxt());
+				broadcastChatMessage(chatMessage,connection);
+			}
+		}
+	}
+	
+	private void sendRoomMessage(ChatMessage message,Connection connection) {
+        String roomName = message.getRecipient();
+        message.setRoomName(roomName);
+        Set<Connection> connectionsInRoom = usersInRooms.get(roomName);
+        if (connectionsInRoom != null) {
+            for (Connection conn : connectionsInRoom) {
+                if (conn.isConnected() && conn!=connection) {
+                    conn.sendTCP(message);
+                   
+                }
+            }
+        }
+        addGroupMessage(roomName, message);
+    }
+	private void sendRecentMessages(Connection conn, String roomName) {
+        List<ChatMessage> recentMessages = roomMessages.getOrDefault(roomName, new ArrayList<>());
+        int messageCount = Math.min(recentMessages.size(), 5);
+        for (int i = 0; i < messageCount; i++) {
+            conn.sendTCP(recentMessages.get(i));
+        }
+        
+    }
+	private void addGroupMessage(String roomName, ChatMessage message) {
+        roomMessages.computeIfAbsent(roomName, k -> new ArrayList<>()).add(message);
+    }
+	private void sendPrivateMessage(ChatMessage message) {
+        String recipient = message.getRecipient();
+        Connection recipientConnection = userConnectionMap.get(recipient);
+        if (recipientConnection != null && recipientConnection.isConnected()) {
+            recipientConnection.sendTCP(message);
+        } else {
+        	
+            System.out.println("Recipient " + recipient + " is not available.");
+        }
+    }
+	private void inviteUserToRoom(Connection inviterConnection, String roomName, String invitedUserName) {
+        if (chatRooms.contains(roomName) && userConnectionMap.containsKey(invitedUserName)) {
+            Connection invitedConnection = userConnectionMap.get(invitedUserName);
+            if (invitedConnection.isConnected()) {
+                usersInRooms.get(roomName).add(invitedConnection);
+                invitedConnection.sendTCP(new InfoMessage("You have been invited to room: " + roomName + " by " + connectionUserMap.get(inviterConnection)));
+                System.out.println(connectionUserMap.get(inviterConnection) + " invited " + invitedUserName + " to room: " + roomName);
+            } else {
+                inviterConnection.sendTCP(new InfoMessage("User " + invitedUserName + " is not online."));
+            }
+        } else {
+            inviterConnection.sendTCP(new InfoMessage("Invalid room or user."));
+        }
+		
+    }
+	private void joinRoom(String roomName,Connection user)
+	{
+		
+		if (chatRooms.contains(roomName)) {
+            usersInRooms.get(roomName).add(user);
+            user.sendTCP(new InfoMessage("Joined room: " + roomName));
+            System.out.println(connectionUserMap.get(user) + " joined room: " + roomName);
+            sendRecentMessages(user,roomName);
+		} else {
+            user.sendTCP(new InfoMessage("Room does not exist: " + roomName));
+        }
+		
+	}
+	private void handleGetMoreMessages(Connection connection, GetMoreMessages getMoreMessages) {
+        String roomName = getMoreMessages.getRoomName();
+        if (usersInRooms.get(roomName).contains(connection)) {
+            List<ChatMessage> allGroupMessages = roomMessages.getOrDefault(roomName, new ArrayList<>());
+            for (ChatMessage message : allGroupMessages) {
+                connection.sendTCP(message);
+            }
+        } else {
+            connection.sendTCP(new InfoMessage("You are not a member of the group: " + roomName));
+        }
+    }
+	private void createRoom(String roomName,Connection user)
+	{
+		chatRooms.add(roomName);
+		Set<Connection> members = new HashSet<>();
+	    members.add(user);
+		usersInRooms.put(roomName, members);
+		
+        System.out.println("Room " + roomName + " created.");
+		
+	}
+	private void editMessage(EditedMessage editedMessage, Connection connection)
+	{
+		ChatMessage newMessage = null;
+		for(ChatMessage chatMessage : allMessages)
+		{
+			if((chatMessage.getRecipient() + " " + chatMessage.getTxt()).equals(editedMessage.getOriginal()))
+			{
+				newMessage = new ChatMessage(chatMessage.getUser(),editedMessage.getEdited(),chatMessage.getRecipient());
+				allMessages.add(newMessage);
+				sendMessage(newMessage,connection);
+				return;
+			}
+		}
+	}
+	private String findUsername(Connection conn)
+	{
+		for (Map.Entry<String, Connection> entry : userConnectionMap.entrySet()) {
+	        if (entry.getValue().equals(conn)) {
+	            return entry.getKey();
+	        }
+	    }
+		return null;
+	}
+	
+	private void replyMessage(ReplyMessage repliedMessage,Connection conn)
+	{
+		ChatMessage newMessage = null;
+		String username = findUsername(conn);
+		for(ChatMessage chatMessage : allMessages)
+		{
+			if((chatMessage.getTxt()).equals(repliedMessage.getmessageRepliedTo()))
+			{		
+				if(username != null)
+				{		
+					String recipient = chatMessage.getRecipient();	
+					if(recipient!=null && !recipient.isEmpty())
+					{
+						if(chatRooms.contains(recipient))
+						{
+							newMessage = new ChatMessage(username,repliedMessage.getReply(),recipient);
+							sendRoomMessage(newMessage,conn);	
+						}
+						else if(userConnectionMap.containsKey(recipient))
+						{	
+							newMessage = new ChatMessage(recipient,repliedMessage.getReply(),chatMessage.getUser());
+							sendPrivateMessage(newMessage);
+						}
+						else
+						{	
+							newMessage = new ChatMessage(username,repliedMessage.getReply(),"");
+							broadcastChatMessage(newMessage,conn);
+						}
+					}
+					return;
+				}
+			}
 		}
 	}
 	public void start() throws IOException {
