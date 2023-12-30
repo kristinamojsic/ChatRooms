@@ -95,14 +95,16 @@ public class Controller {
 	}
 	
 	public void showMessage(String message,String sender) {
-	    Label serverLabel = new Label(sender);
-	    serverLabel.setStyle("-fx-font-weight: bold;");
+	    Label senderLabel = new Label(sender);
+	    senderLabel.setStyle("-fx-font-weight: bold;");
 
 	    Label messageLabel = new Label(message);
 	    messageLabel.setStyle("-fx-background-color: #e0e0e0; -fx-padding: 5px;");
+	    
 	    Button replyButton = new Button("Reply");
 	    replyButton.setOnAction(e -> onReplyClicked(messageLabel));
-	    VBox messageBox = new VBox(serverLabel, messageLabel,replyButton);
+	    VBox messageBox = sender == "Server" ? new VBox(senderLabel, messageLabel) : new VBox(senderLabel, messageLabel,replyButton);
+	   
 	    VBox.setMargin(messageBox, new Insets(5, 5, 5, 5));
 
 	    messageContainer.getChildren().add(messageBox);
