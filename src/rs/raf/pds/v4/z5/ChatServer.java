@@ -70,7 +70,7 @@ public class ChatServer implements Runnable{
 					ChatMessage chatMessage = (ChatMessage)object;
 					System.out.println(chatMessage.getUser()+":"+chatMessage.getTxt());
 					
-					sendMessage(chatMessage);
+					sendMessage(chatMessage,connection);
 					
 					allMessages.add(chatMessage);
 					return;
@@ -119,7 +119,7 @@ public class ChatServer implements Runnable{
 				if(object instanceof EditedMessage)
 				{
 					EditedMessage editedMessage = (EditedMessage) object;
-					editMessage(editedMessage);
+					editMessage(editedMessage,connection);
 					
 				}
 				if(object instanceof ReplyMessage)
@@ -128,14 +128,14 @@ public class ChatServer implements Runnable{
 					replyMessage(repliedMessage,connection);
 				}
 			}
-			private void sendMessage(ChatMessage chatMessage)
+			private void sendMessage(ChatMessage chatMessage, Connection connection)
 			{
 				String recipient = chatMessage.getRecipient();
 				if(recipient!=null && !recipient.isEmpty())
 				{
 					if(chatRooms.contains(recipient))
 					{
-						sendRoomMessage(chatMessage);	
+						sendRoomMessage(chatMessage,connection);	
 					}
 					else if(userConnectionMap.containsKey(recipient))
 					{
@@ -144,11 +144,11 @@ public class ChatServer implements Runnable{
 					else
 					{
 						chatMessage.setTxt(chatMessage.getRecipient() + " " + chatMessage.getTxt());
-						broadcastChatMessage(chatMessage);
+						broadcastChatMessage(chatMessage,connection);
 					}
 				}
 			}
-			private void sendRoomMessage(ChatMessage message) {
+			private void sendRoomMessage(ChatMessage message,Connection connection) {
                 String roomName = message.getRecipient();
                 message.setRoomName(roomName);
                 //String messageText = message.txt;
@@ -156,9 +156,9 @@ public class ChatServer implements Runnable{
                 Set<Connection> connectionsInRoom = usersInRooms.get(roomName);
                 if (connectionsInRoom != null) {
                     for (Connection conn : connectionsInRoom) {
-                        if (conn.isConnected() && !conn.equals(message.getUser())) {
+                        if (conn.isConnected() && conn!=connection) {
                             conn.sendTCP(message);
-                           // sendRecentMessages(conn, roomName);
+                           
                         }
                     }
                 }
@@ -235,7 +235,7 @@ public class ChatServer implements Runnable{
                 System.out.println("Room " + roomName + " created.");
 				
 			}
-			private void editMessage(EditedMessage editedMessage)
+			private void editMessage(EditedMessage editedMessage, Connection connection)
 			{
 				ChatMessage newMessage = null;
 				for(ChatMessage chatMessage : allMessages)
@@ -244,7 +244,7 @@ public class ChatServer implements Runnable{
 					{
 						newMessage = new ChatMessage(chatMessage.getUser(),editedMessage.getEdited(),chatMessage.getRecipient());
 						allMessages.add(newMessage);
-						sendMessage(newMessage);
+						sendMessage(newMessage,connection);
 						return;
 					}
 				}
@@ -282,7 +282,7 @@ public class ChatServer implements Runnable{
 								{
 									
 									newMessage = new ChatMessage(username,repliedMessage.getReply(),recipient);
-									sendRoomMessage(newMessage);	
+									sendRoomMessage(newMessage,conn);	
 								}
 								else if(userConnectionMap.containsKey(recipient))
 								{
@@ -294,7 +294,7 @@ public class ChatServer implements Runnable{
 								{
 									
 									newMessage = new ChatMessage(username,repliedMessage.getReply(),"");
-									broadcastChatMessage(newMessage);
+									broadcastChatMessage(newMessage,conn);
 								}
 							}
 							
@@ -340,9 +340,9 @@ public class ChatServer implements Runnable{
 		connectionUserMap.put(conn, loginMessage.getUserName());
 		showTextToAll("User "+loginMessage.getUserName()+" has connected!", conn);
 	}
-	private void broadcastChatMessage(ChatMessage message) {
+	private void broadcastChatMessage(ChatMessage message,Connection connection) {
 		for (Connection conn: userConnectionMap.values()) {
-			if (conn.isConnected())
+			if (conn.isConnected() && conn != connection)
 				conn.sendTCP(message);
 		}
 	}
