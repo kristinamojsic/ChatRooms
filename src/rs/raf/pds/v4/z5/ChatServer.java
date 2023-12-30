@@ -264,10 +264,18 @@ public class ChatServer implements Runnable{
 	{
 		
 		if (chatRooms.contains(roomName)) {
-            usersInRooms.get(roomName).add(user);
-            user.sendTCP(new InfoMessage("Joined room: " + roomName));
-            System.out.println(connectionUserMap.get(user) + " joined room: " + roomName);
-            sendRecentMessages(user,roomName);
+			if(!(usersInRooms.get(roomName).contains(user)))
+			{
+				usersInRooms.get(roomName).add(user);
+	            user.sendTCP(new InfoMessage("Joined room: " + roomName));
+	            System.out.println(connectionUserMap.get(user) + " joined room: " + roomName);
+	            sendRecentMessages(user,roomName);
+			}
+			else
+			{
+				user.sendTCP(new InfoMessage("You are already in this room"));
+			}
+            
 		} else {
             user.sendTCP(new InfoMessage("Room does not exist: " + roomName));
         }
