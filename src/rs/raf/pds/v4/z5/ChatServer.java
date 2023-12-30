@@ -24,6 +24,7 @@ import rs.raf.pds.v4.z5.messages.ListUsers;
 import rs.raf.pds.v4.z5.messages.Login;
 import rs.raf.pds.v4.z5.messages.WhoRequest;
 import rs.raf.pds.v4.z5.messages.CreateRoom;
+import rs.raf.pds.v4.z5.messages.EditedMessage;
 import rs.raf.pds.v4.z5.messages.GetMoreMessages;
 
 
@@ -68,23 +69,7 @@ public class ChatServer implements Runnable{
 					ChatMessage chatMessage = (ChatMessage)object;
 					System.out.println(chatMessage.getUser()+":"+chatMessage.getTxt());
 					
-					String recipient = chatMessage.getRecipient();
-					if(recipient!=null && !recipient.isEmpty())
-					{
-						if(chatRooms.contains(recipient))
-						{
-							sendRoomMessage(chatMessage);	
-						}
-						else if(userConnectionMap.containsKey(recipient))
-						{
-							sendPrivateMessage(chatMessage);
-						}
-						else
-						{
-							chatMessage.setTxt(chatMessage.getRecipient() + " " + chatMessage.getTxt());
-							broadcastChatMessage(chatMessage);
-						}
-					}
+					sendMessage(chatMessage);
 					
 					allMessages.add(chatMessage);
 					return;
@@ -128,6 +113,33 @@ public class ChatServer implements Runnable{
 				{
 					InfoMessage infoMessage = (InfoMessage) object;
 					connection.sendTCP(infoMessage);
+					return;
+				}
+				if(object instanceof EditedMessage)
+				{
+					EditedMessage editedMessage = (EditedMessage) object;
+					editMessage(editedMessage);
+					
+				}
+			}
+			private void sendMessage(ChatMessage chatMessage)
+			{
+				String recipient = chatMessage.getRecipient();
+				if(recipient!=null && !recipient.isEmpty())
+				{
+					if(chatRooms.contains(recipient))
+					{
+						sendRoomMessage(chatMessage);	
+					}
+					else if(userConnectionMap.containsKey(recipient))
+					{
+						sendPrivateMessage(chatMessage);
+					}
+					else
+					{
+						chatMessage.setTxt(chatMessage.getRecipient() + " " + chatMessage.getTxt());
+						broadcastChatMessage(chatMessage);
+					}
 				}
 			}
 			private void sendRoomMessage(ChatMessage message) {
@@ -215,6 +227,27 @@ public class ChatServer implements Runnable{
 				usersInRooms.put(roomName, members);
 				
                 System.out.println("Room " + roomName + " created.");
+				
+			}
+			public void editMessage(EditedMessage editedMessage)
+			{
+				System.out.println("printovanje " + editedMessage.getOriginal());
+				System.out.println("printovanje " + editedMessage.getEdited());
+				
+				ChatMessage newMessage = null;
+				for(ChatMessage chatMessage : allMessages)
+				{
+					System.out.println(chatMessage.getRecipient() + " " + chatMessage.getTxt());
+					if((chatMessage.getRecipient() + " " + chatMessage.getTxt()).equals(editedMessage.getOriginal()))
+					{
+						newMessage = new ChatMessage(chatMessage.getUser(),editedMessage.getEdited(),chatMessage.getRecipient());
+						System.out.println("nova poruka" + newMessage.getTxt());
+						allMessages.add(newMessage);
+						sendMessage(newMessage);
+						return;
+					}
+				}
+				
 				
 			}
 			public void disconnected(Connection connection) {

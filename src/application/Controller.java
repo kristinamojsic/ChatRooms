@@ -87,8 +87,10 @@ public class Controller {
 	    Optional<String> result = dialog.showAndWait();
 	    result.ifPresent(editedMessage -> {
 	    	String edited = editedMessage + " (Ed)";
+	    	
+	    	chatClient.sendEditedMessage(messageLabel.getText(),edited);
 	    	messageLabel.setText(edited);
-	    	chatClient.sendEditedMessage(edited);
+	    	
 	    });
 	}
 	

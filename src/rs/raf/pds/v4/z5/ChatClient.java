@@ -14,6 +14,7 @@ import javafx.application.Platform;
 import javafx.scene.control.TextField;
 import rs.raf.pds.v4.z5.messages.ChatMessage;
 import rs.raf.pds.v4.z5.messages.CreateRoom;
+import rs.raf.pds.v4.z5.messages.EditedMessage;
 import rs.raf.pds.v4.z5.messages.GetMoreMessages;
 import rs.raf.pds.v4.z5.messages.InfoMessage;
 import rs.raf.pds.v4.z5.messages.InviteToChatRoom;
@@ -140,10 +141,10 @@ public class ChatClient implements Runnable{
 		}
 		return sb.toString();
 	}
-	public void sendEditedMessage(String editedMessage) {
-        ChatMessage chatMessage = new ChatMessage(userName, editedMessage,"recipient");
-       // chatMessage.setEdited(true);
-        client.sendTCP(chatMessage);
+	public void sendEditedMessage(String originalMessage,String editedMessage) {
+		
+        client.sendTCP(new EditedMessage(originalMessage,editedMessage));
+       
     }
 	public void start() throws IOException {
 		client.start();
