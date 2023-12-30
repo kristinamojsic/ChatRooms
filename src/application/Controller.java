@@ -102,14 +102,14 @@ public class Controller {
 	    messageLabel.setStyle("-fx-background-color: #e0e0e0; -fx-padding: 5px;");
 	    
 	    Button replyButton = new Button("Reply");
-	    replyButton.setOnAction(e -> onReplyClicked(messageLabel));
+	    replyButton.setOnAction(e -> onReplyClicked(sender,messageLabel));
 	    VBox messageBox = sender == "Server" ? new VBox(senderLabel, messageLabel) : new VBox(senderLabel, messageLabel,replyButton);
 	   
 	    VBox.setMargin(messageBox, new Insets(5, 5, 5, 5));
 
 	    messageContainer.getChildren().add(messageBox);
 	}
-	private void onReplyClicked(Label messageLabel) {
+	private void onReplyClicked(String sender,Label messageLabel) {
 	    TextInputDialog dialog = new TextInputDialog();
 	    dialog.setTitle("Reply to Message");
 	    dialog.setHeaderText(null);
@@ -118,7 +118,7 @@ public class Controller {
 	    Optional<String> result = dialog.showAndWait();
 	    result.ifPresent(reply -> {
 	       
-	        addReply(messageLabel, reply);
+	        addReply(sender,messageLabel, reply);
 	       // textField.clear();
 	        
 	    });
@@ -128,7 +128,7 @@ public class Controller {
 	    
 	}
 
-	private void addReply(Label originalMessageLabel, String reply) {
+	private void addReply(String sender,Label originalMessageLabel, String reply) {
 	    Label senderLabel = new Label("you (reply) to " + originalMessageLabel.getText());
 	    senderLabel.setStyle("-fx-font-weight: bold;");
 
@@ -140,7 +140,7 @@ public class Controller {
 	    HBox.setMargin(replyBox, new Insets(5, 5, 5, 5));
 
 	    messageContainer.getChildren().add(replyBox);
-	    chatClient.sendReplyMessage(originalMessageLabel.getText(),"Replied to " + originalMessageLabel.getText() + " with " + reply);
+	    chatClient.sendReplyMessage(originalMessageLabel.getText(),"Replied to " + sender + ": " + originalMessageLabel.getText() + " with: " + reply);
 	   
 	    // textField.setText("Replied to " + originalMessageLabel.getText() + " with " + reply);
        // buttonClicked = true;

@@ -334,7 +334,10 @@ public class ChatServer implements Runnable{
 						}
 						else if(userConnectionMap.containsKey(recipient))
 						{	
-							newMessage = new ChatMessage(recipient,repliedMessage.getReply(),chatMessage.getUser());
+							String [] parts = repliedMessage.getReply().split(" ");
+							parts[2] = "you:";
+							String reply = String.join(" ",parts);
+							newMessage = new ChatMessage(recipient,reply,chatMessage.getUser());
 							sendPrivateMessage(newMessage);
 						}
 						else
