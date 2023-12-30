@@ -22,6 +22,7 @@ import rs.raf.pds.v4.z5.messages.ListRooms;
 import rs.raf.pds.v4.z5.messages.ListRoomsRequest;
 import rs.raf.pds.v4.z5.messages.ListUsers;
 import rs.raf.pds.v4.z5.messages.Login;
+import rs.raf.pds.v4.z5.messages.ReplyMessage;
 import rs.raf.pds.v4.z5.messages.WhoRequest;
 import rs.raf.pds.v4.z5.messages.CreateRoom;
 import rs.raf.pds.v4.z5.messages.EditedMessage;
@@ -120,6 +121,11 @@ public class ChatServer implements Runnable{
 					EditedMessage editedMessage = (EditedMessage) object;
 					editMessage(editedMessage);
 					
+				}
+				if(object instanceof ReplyMessage)
+				{
+					ReplyMessage repliedMessage = (ReplyMessage) object;
+					replyMessage(repliedMessage,connection);
 				}
 			}
 			private void sendMessage(ChatMessage chatMessage)
@@ -229,27 +235,77 @@ public class ChatServer implements Runnable{
                 System.out.println("Room " + roomName + " created.");
 				
 			}
-			public void editMessage(EditedMessage editedMessage)
+			private void editMessage(EditedMessage editedMessage)
 			{
-				System.out.println("printovanje " + editedMessage.getOriginal());
-				System.out.println("printovanje " + editedMessage.getEdited());
-				
 				ChatMessage newMessage = null;
 				for(ChatMessage chatMessage : allMessages)
 				{
-					System.out.println(chatMessage.getRecipient() + " " + chatMessage.getTxt());
 					if((chatMessage.getRecipient() + " " + chatMessage.getTxt()).equals(editedMessage.getOriginal()))
 					{
 						newMessage = new ChatMessage(chatMessage.getUser(),editedMessage.getEdited(),chatMessage.getRecipient());
-						System.out.println("nova poruka" + newMessage.getTxt());
 						allMessages.add(newMessage);
 						sendMessage(newMessage);
 						return;
 					}
 				}
-				
-				
 			}
+			private String findUsername(Connection conn)
+			{
+				for (Map.Entry<String, Connection> entry : userConnectionMap.entrySet()) {
+			        if (entry.getValue().equals(conn)) {
+			            return entry.getKey();
+			        }
+			    }
+				return null;
+			}
+			
+			private void replyMessage(ReplyMessage repliedMessage,Connection conn)
+			{
+				ChatMessage newMessage = null;
+			
+				String username = findUsername(conn);
+				
+				for(ChatMessage chatMessage : allMessages)
+				{
+					
+					if((chatMessage.getTxt()).equals(repliedMessage.getmessageRepliedTo()))
+					{
+						
+						if(username != null)
+						{
+							
+							String recipient = chatMessage.getRecipient();
+							
+							if(recipient!=null && !recipient.isEmpty())
+							{
+								if(chatRooms.contains(recipient))
+								{
+									
+									newMessage = new ChatMessage(username,repliedMessage.getReply(),recipient);
+									sendRoomMessage(newMessage);	
+								}
+								else if(userConnectionMap.containsKey(recipient))
+								{
+									
+									newMessage = new ChatMessage(recipient,repliedMessage.getReply(),chatMessage.getUser());
+									sendPrivateMessage(newMessage);
+								}
+								else
+								{
+									
+									newMessage = new ChatMessage(username,repliedMessage.getReply(),"");
+									broadcastChatMessage(newMessage);
+								}
+							}
+							
+						
+							return;
+						}
+						
+					}
+				}
+			}
+			
 			public void disconnected(Connection connection) {
 				String user = connectionUserMap.get(connection);
 				connectionUserMap.remove(connection);
