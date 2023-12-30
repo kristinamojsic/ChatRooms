@@ -235,9 +235,17 @@ public class ChatServer implements Runnable{
             if (invitedConnection.isConnected()) {
             	if(usersInRooms.get(roomName).contains(inviterConnection))
             	{
-            		usersInRooms.get(roomName).add(invitedConnection);
-                    invitedConnection.sendTCP(new InfoMessage("You have been invited to room: " + roomName + " by " + connectionUserMap.get(inviterConnection)));
-                    System.out.println(connectionUserMap.get(inviterConnection) + " invited " + invitedUserName + " to room: " + roomName);
+            		if(!(usersInRooms.get(roomName).contains(findConnection(invitedUserName))))
+            		{
+            			usersInRooms.get(roomName).add(invitedConnection);
+                        invitedConnection.sendTCP(new InfoMessage("You have been invited to room: " + roomName + " by " + connectionUserMap.get(inviterConnection)));
+                        System.out.println(connectionUserMap.get(inviterConnection) + " invited " + invitedUserName + " to room: " + roomName);
+            		}
+            		else
+            		{
+            			inviterConnection.sendTCP(new InfoMessage("Invited user is already in this room."));
+            		}
+            		
             	}
             	else
             	{
@@ -322,6 +330,15 @@ public class ChatServer implements Runnable{
 		return null;
 	}
 	
+	private Connection findConnection(String username)
+	{
+		for (Map.Entry<Connection, String> entry : connectionUserMap.entrySet()) {
+	        if (entry.getValue().equals(username)) {
+	            return entry.getKey();
+	        }
+	    }
+		return null;
+	}
 	private void replyMessage(ReplyMessage repliedMessage,Connection conn)
 	{
 		ChatMessage newMessage = null;
