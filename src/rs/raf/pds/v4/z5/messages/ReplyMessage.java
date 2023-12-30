@@ -4,15 +4,20 @@ public class ReplyMessage {
 
 	String messageRepliedTo;
 	String reply;
+	
+	public ReplyMessage()
+	{
+		
+	}
 	public ReplyMessage(String originalMessage, String reply) {
 		super();
 		this.messageRepliedTo = originalMessage;
 		this.reply = reply;
 	}
-	public String getOriginalMessage() {
+	public String getmessageRepliedTo() {
 		return messageRepliedTo;
 	}
-	public void setOriginalMessage(String originalMessage) {
+	public void setmessageRepliedTo(String originalMessage) {
 		this.messageRepliedTo = originalMessage;
 	}
 	public String getReply() {
