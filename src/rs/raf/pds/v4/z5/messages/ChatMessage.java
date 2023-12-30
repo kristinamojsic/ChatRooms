@@ -51,5 +51,9 @@ public class ChatMessage {
 	{
 		this.txt = txt;
 	}
+
+	public void setRecipient(String recipient) {
+		this.recipient = recipient;
+	}
 	
 }

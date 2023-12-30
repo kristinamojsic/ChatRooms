@@ -188,6 +188,7 @@ public class ChatServer implements Runnable{
 			else
 			{
 				chatMessage.setTxt(chatMessage.getRecipient() + " " + chatMessage.getTxt());
+				chatMessage.setRecipient(" ");
 				broadcastChatMessage(chatMessage,connection);
 			}
 		}
@@ -277,14 +278,26 @@ public class ChatServer implements Runnable{
         System.out.println("Room " + roomName + " created.");
 		
 	}
+	//provera da li je poruka broadcast?
+	private boolean checkIfBroadcasted(String message)
+	{
+		String recipient = message.split(" ", 2)[0];
+		if(chatRooms.contains(recipient)) return false;
+		if(userConnectionMap.containsKey(recipient)) return false;
+		return true;
+	}
 	private void editMessage(EditedMessage editedMessage, Connection connection)
 	{
 		ChatMessage newMessage = null;
+		boolean isBroadcasted = checkIfBroadcasted(editedMessage.getOriginal());
+		String messageToCheck = null;
 		for(ChatMessage chatMessage : allMessages)
 		{
-			if((chatMessage.getRecipient() + " " + chatMessage.getTxt()).equals(editedMessage.getOriginal()))
+			messageToCheck = isBroadcasted ? chatMessage.getTxt() : chatMessage.getRecipient() + " " + chatMessage.getTxt();
+			if( (messageToCheck).equals(editedMessage.getOriginal()))
 			{
 				newMessage = new ChatMessage(chatMessage.getUser(),editedMessage.getEdited(),chatMessage.getRecipient());
+				//allMessages.remove(chatMessage);
 				allMessages.add(newMessage);
 				sendMessage(newMessage,connection);
 				return;
