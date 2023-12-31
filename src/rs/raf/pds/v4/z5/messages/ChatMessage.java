@@ -7,12 +7,21 @@ public class ChatMessage {
 	String recipient;
 	String roomName;
 	boolean edited = false;
+	ChatMessage originalMessage;
 	
 	
 	protected ChatMessage() {
 		
 	}
 	
+	public ChatMessage getOriginalMessage() {
+		return originalMessage;
+	}
+
+	public void setOriginalMessage(ChatMessage originalMessage) {
+		this.originalMessage = originalMessage;
+	}
+
 	public void setEdited(boolean state)
 	{
 		edited = state;
