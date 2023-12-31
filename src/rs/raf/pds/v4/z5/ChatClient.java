@@ -98,7 +98,14 @@ public class ChatClient implements Runnable{
 					Platform.runLater(() -> {
 						String room = message.getRoomName();
 						String user = message.getUser();
-				        controller.showMessage(message.getTxt(), room != null ? room + ": " + user : user );
+						if(message.getEdited())
+						{
+							controller.showMessage(message.getTxt(), room != null ? room + ": " + user : user,message.getOriginalMessage().getTxt());	
+						}
+						else
+						{
+							controller.showMessage(message.getTxt(), room != null ? room + ": " + user : user);	
+						}
 				    });
 					return;
 				}

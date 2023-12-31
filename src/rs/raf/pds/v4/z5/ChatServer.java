@@ -321,6 +321,8 @@ public class ChatServer implements Runnable{
 			if( (messageToCheck).equals(editedMessage.getOriginal()))
 			{
 				newMessage = new ChatMessage(chatMessage.getUser(),editedMessage.getEdited(),chatMessage.getRecipient());
+				newMessage.setEdited(true);
+				newMessage.setOriginalMessage(chatMessage);
 				//allMessages.remove(chatMessage);
 				allMessages.add(newMessage);
 				sendMessage(newMessage,connection);
