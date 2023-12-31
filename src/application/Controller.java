@@ -8,6 +8,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Label;
@@ -94,7 +95,7 @@ public class Controller {
 	    });
 	}
 	
-	public void showMessage(String message,String sender) {
+	public void showMessage(String message,String sender,String... originalMessage) {
 	    Label senderLabel = new Label(sender);
 	    senderLabel.setStyle("-fx-font-weight: bold;");
 
@@ -108,6 +109,7 @@ public class Controller {
 	    VBox.setMargin(messageBox, new Insets(5, 5, 5, 5));
 
 	    messageContainer.getChildren().add(messageBox);
+	    messageLabel.setOnMouseClicked(e -> onMessageClicked(sender, message, originalMessage));
 	}
 	private void onReplyClicked(String sender,Label messageLabel) {
 	    TextInputDialog dialog = new TextInputDialog();
@@ -121,11 +123,22 @@ public class Controller {
 	        addReply(sender,messageLabel, reply);
 	       // textField.clear();
 	        
-	    });
-	    
-	    
-	    
-	    
+	    });   
+	}
+	
+	private void onMessageClicked(String sender, String message, String... originalMessage)
+	{
+		if (originalMessage.length > 0) {
+	       
+	        String originalMessageText = String.join(" ", originalMessage);
+	        
+	        
+	        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+	        alert.setTitle("Original Message");
+	        alert.setHeaderText(sender + ":");
+	        alert.setContentText(originalMessageText);
+	        alert.showAndWait();
+	    }
 	}
 
 	private void addReply(String sender,Label originalMessageLabel, String reply) {
