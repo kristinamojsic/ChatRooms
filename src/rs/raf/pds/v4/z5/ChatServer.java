@@ -181,14 +181,14 @@ public class ChatServer implements Runnable{
 	private void sendMessage(ChatMessage chatMessage, Connection connection)
 	{
 		String recipient = chatMessage.getRecipient();
-		if(recipient!=null && !recipient.isEmpty())
+		if(recipient!=null)
 		{
 			if(chatRooms.contains(recipient)) sendRoomMessage(chatMessage,connection);
 			else if(userConnectionMap.containsKey(recipient)) sendPrivateMessage(chatMessage);
 			else
 			{
 				chatMessage.setTxt(chatMessage.getRecipient() + " " + chatMessage.getTxt());
-				chatMessage.setRecipient(" ");
+				chatMessage.setRecipient("");
 				broadcastChatMessage(chatMessage,connection);
 			}
 		}
@@ -353,15 +353,21 @@ public class ChatServer implements Runnable{
 	{
 		ChatMessage newMessage = null;
 		String username = findUsername(conn);
+		System.out.println(repliedMessage.getmessageRepliedTo());
+		System.out.println(repliedMessage.getReply());
+		
 		for(ChatMessage chatMessage : allMessages)
 		{
+			
 			if((chatMessage.getTxt()).equals(repliedMessage.getmessageRepliedTo()))
 			{		
 				if(username != null)
 				{		
+					
 					String recipient = chatMessage.getRecipient();	
-					if(recipient!=null && !recipient.isEmpty())
+					if(recipient!=null)
 					{
+					
 						if(chatRooms.contains(recipient))
 						{
 							newMessage = new ChatMessage(username,repliedMessage.getReply(),recipient);

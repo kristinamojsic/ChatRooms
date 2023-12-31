@@ -116,36 +116,25 @@ public class ChatClient implements Runnable{
 			}
 		});
 	}
-	/*private void showChatMessage(ChatMessage chatMessage) {
-		//controller.showChatMessage(chatMessage);
-		System.out.println(chatMessage.getUser()+":"+chatMessage.getTxt());
-	}*/
-	/*private void showMessage(String txt,String sender) {
-		controller.showMessage(txt,sender);
-		//System.out.println(txt);
-	}*/
+	
 	private String showOnlineUsers(String[] users) {
-		//System.out.print("Server:");
+		
 		StringBuilder sb = new StringBuilder();
 		for (int i=0; i<users.length; i++) {
 			String user = users[i];
 			sb.append(user);
 			sb.append((i==users.length-1?"\n":", "));
-			//System.out.print(user);
-			//System.out.printf((i==users.length-1?"\n":", "));
+			
 		}
 		return sb.toString();
 	}
 	private String showRooms(String[] rooms) {
-		//System.out.print("Server:");
+		
 		StringBuilder sb = new StringBuilder();
 		for (int i=0; i<rooms.length; i++) {
 			String room = rooms[i];
 			sb.append(room);
-			//System.out.print(room);
 			sb.append((i==rooms.length-1?"\n":", "));
-			//System.out.printf((i==rooms.length-1?"\n":", "));
-			
 		}
 		return sb.toString();
 	}
@@ -232,7 +221,8 @@ public class ChatClient implements Runnable{
                 String messageText = parts[1];
                 client.sendTCP(new ChatMessage(userName, messageText, recipient));
             } else {
-            	client.sendTCP(new InfoMessage("Invalid command. Use '@recipient message'."));
+            	client.sendTCP(new ChatMessage(userName,userInput,""));
+            	//client.sendTCP(new InfoMessage("Invalid command. Use '@recipient message'."));
                 //System.out.println("Invalid command. Use '@recipient message'.");
             }
     	}
