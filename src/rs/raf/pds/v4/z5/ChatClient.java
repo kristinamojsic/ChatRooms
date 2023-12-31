@@ -63,7 +63,6 @@ public class ChatClient implements Runnable{
 			
 			public void received (Connection connection, Object object) {
 				
-
 				if (object instanceof ListUsers) {
 					ListUsers listUsers = (ListUsers)object;
 					String users = showOnlineUsers(listUsers.getUsers());
@@ -72,13 +71,14 @@ public class ChatClient implements Runnable{
 				    });
 					return;
 				}
+				
 				if(object instanceof ListRooms)
 				{
 					ListRooms listrooms = (ListRooms) object;
 					String rooms = showRooms(listrooms.getRooms());
 					Platform.runLater(() -> {
 					        controller.showMessage(rooms,"Server");
-					    });
+					        });
 					return;
 				}
 				
@@ -178,7 +178,6 @@ public class ChatClient implements Runnable{
                 client.sendTCP(new CreateRoom(parts[1]));
             } else {
             	client.sendTCP(new InfoMessage("Invalid command. Use 'Create @roomName'."));
-                //System.out.println("Invalid command. Use 'Create @roomName'.");
             }
     	}
     	else if(userInput.startsWith("Join"))
@@ -188,7 +187,6 @@ public class ChatClient implements Runnable{
                 client.sendTCP(new JoinChatRoom(parts[1]));
             } else {
             	client.sendTCP(new InfoMessage("Invalid command. Use 'Create @roomName'."));
-               // System.out.println("Invalid command. Use 'Create @roomName'.");
             }
     	}
     	else if(userInput.startsWith("Invite"))
@@ -201,7 +199,6 @@ public class ChatClient implements Runnable{
     		else
     		{
     			client.sendTCP(new InfoMessage("Invalid command. Use 'Invite @roomName @username'."));
-    			//System.out.println("Invalid command. Use 'Invite @roomName @username'.");
     		}
     	}
     	else if (userInput.startsWith("GetMoreMessages")) {
@@ -211,7 +208,6 @@ public class ChatClient implements Runnable{
                 client.sendTCP(new GetMoreMessages(parts[1]));
             } else {
             	client.sendTCP(new InfoMessage("Invalid command. Use 'GetMoreMessages @roomName'."));
-                //System.out.println("Invalid command. Use 'GetMoreMessages @roomName'.");
             }
         }
     	else {
@@ -221,9 +217,7 @@ public class ChatClient implements Runnable{
                 String messageText = parts[1];
                 client.sendTCP(new ChatMessage(userName, messageText, recipient));
             } else {
-            	client.sendTCP(new ChatMessage(userName,userInput,""));
-            	//client.sendTCP(new InfoMessage("Invalid command. Use '@recipient message'."));
-                //System.out.println("Invalid command. Use '@recipient message'.");
+            	client.sendTCP(new ChatMessage(userName,userInput,""));            	
             }
     	}
     	
@@ -248,7 +242,6 @@ public class ChatClient implements Runnable{
 					            
 			    
 				running = true;
-				
 	            while (running) {
 	         
 	            	if (!client.isConnected() && running)

@@ -298,11 +298,10 @@ public class ChatServer implements Runnable{
 		Set<Connection> members = new HashSet<>();
 	    members.add(user);
 		usersInRooms.put(roomName, members);
-		
-        System.out.println("Room " + roomName + " created.");
-		
+		user.sendTCP(new InfoMessage("Room " + roomName + " created."));
+        
 	}
-	//provera da li je poruka broadcast?
+	
 	private boolean checkIfBroadcasted(String message)
 	{
 		String recipient = message.split(" ", 2)[0];
