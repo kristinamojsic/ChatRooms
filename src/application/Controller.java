@@ -33,7 +33,6 @@ public class Controller {
         return textField;
     }
 	
-	public boolean buttonClicked = false;
 	public void setChatClient(ChatClient chatClient)
 	{
 		this.chatClient = chatClient;
@@ -44,7 +43,8 @@ public class Controller {
 		
 		String text = textField.getText();
 		addMessage(text);
-		buttonClicked = true;
+		chatClient.sendMessage(text);
+		
 		//textField.clear();
 	}
 	public void addMessage(String message) {
